@@ -7,6 +7,11 @@ reg [3:0] B;
 reg [2:0] opcode;
 wire [3:0] Y;
 
+reg [3:0] expected;
+integer a, b, op;
+integer pass_count = 0;
+integer fail_count = 0;
+
 alu dut (
     .A(A),
     .B(B),
@@ -14,36 +19,47 @@ alu dut (
     .Y(Y)
 );
 
-task test_operation;
-    input [3:0] a_in;
-    input [3:0] b_in;
-    input [2:0] op_in;
-    begin
-        A = a_in;
-        B = b_in;
-        opcode = op_in;
-        #10;
-        $display("A=%d B=%d Opcode=%b Y=%d",
-                 A, B, opcode, Y);
-    end
-endtask
-
 initial begin
     $dumpfile("waveforms/alu.vcd");
     $dumpvars(0, alu_tb);
 
-    test_operation(5, 3, 3'b000);
-    test_operation(5, 3, 3'b001);
-    test_operation(5, 3, 3'b010);
-    test_operation(5, 3, 3'b011);
-    test_operation(5, 3, 3'b100);
+    for (op = 0; op < 5; op = op + 1) begin
+        for (a = 0; a < 16; a = a + 1) begin
+            for (b = 0; b < 16; b = b + 1) begin
+                A = a;
+                B = b;
+                opcode = op;
+                #10;
 
-    test_operation(0, 0, 3'b000);
-    test_operation(15, 1, 3'b000);
-    test_operation(0, 1, 3'b001);
-    test_operation(15, 15, 3'b010);
-    test_operation(10, 5, 3'b100);
+                case (op)
+                    0: expected = (a + b) & 15;
+                    1: expected = (a - b) & 15;
+                    2: expected = a & b;
+                    3: expected = a | b;
+                    4: expected = a ^ b;
+                endcase
 
+                if (Y === expected) begin
+                    pass_count = pass_count + 1;
+                end else begin
+                    fail_count = fail_count + 1;
+                    $display("FAIL: A=%0d B=%0d Opcode=%0d Y=%0d Expected=%0d",
+                             A, B, opcode, Y, expected);
+                end
+            end
+        end
+    end
+
+    $display("--------------------------------");
+    $display("Total tests: %0d", pass_count + fail_count);
+    $display("Passed:      %0d", pass_count);
+    $display("Failed:      %0d", fail_count);
+    $display("--------------------------------");
+
+    if (fail_count != 0)
+        $fatal(1, "ALU TEST FAILED");
+
+    $display("ALL TESTS PASSED");
     $finish;
 end
 

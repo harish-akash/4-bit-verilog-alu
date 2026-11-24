@@ -7,28 +7,38 @@
 - Icarus Verilog 12.0
 - GTKWave 3.3.126
 
-## Test Results
+## Operations Tested
 
-| No. | Operation | A | B | Opcode | Expected | Actual | Status |
-|---:|---|---:|---:|---|---:|---:|---|
-| 1 | Addition | 5 | 3 | 000 | 8 | 8 | PASS |
-| 2 | Subtraction | 5 | 3 | 001 | 2 | 2 | PASS |
-| 3 | AND | 5 | 3 | 010 | 1 | 1 | PASS |
-| 4 | OR | 5 | 3 | 011 | 7 | 7 | PASS |
-| 5 | XOR | 5 | 3 | 100 | 6 | 6 | PASS |
-| 6 | Addition | 0 | 0 | 000 | 0 | 0 | PASS |
-| 7 | Addition | 15 | 1 | 000 | 0 | 0 | PASS |
-| 8 | Subtraction | 0 | 1 | 001 | 15 | 15 | PASS |
-| 9 | AND | 15 | 15 | 010 | 15 | 15 | PASS |
-| 10 | XOR | 10 | 5 | 100 | 15 | 15 | PASS |
+| Opcode | Operation |
+|---|---|
+| 000 | Addition |
+| 001 | Subtraction |
+| 010 | Bitwise AND |
+| 011 | Bitwise OR |
+| 100 | Bitwise XOR |
 
-## Important Note
-The ALU has a 4-bit output. Therefore, 15 + 1 wraps around to 0.
-The carry bit is not included in the output.
+## Exhaustive Test Summary
+
+| Metric | Result |
+|---|---:|
+| Input combinations per operation | 256 |
+| Supported operations tested | 5 |
+| Total test cases | 1280 |
+| Passed | 1280 |
+| Failed | 0 |
+
+All 16 possible values of A and all 16 possible values of B were tested for each supported operation.
+
+## Important Notes
+- The ALU has a 4-bit output.
+- Addition and subtraction results are limited to 4 bits.
+- Therefore, 15 + 1 produces 0 because the carry bit is not included in the output.
+- Subtracting 1 from 0 produces 15 in the 4-bit output.
 
 ## Conclusion
-All 10 test cases produced the expected results in simulation.
+All 1280 test cases passed in RTL simulation using Icarus Verilog.
 
-## Verification Status
-RTL simulation completed using Icarus Verilog.
-Waveform generated at waveforms/alu.vcd and viewed in GTKWave.
+Waveform generated at `waveforms/alu.vcd` and viewed in GTKWave.
+
+## Verification Limitations
+This verifies the simulated RTL for the tested input combinations. FPGA implementation, hardware testing, synthesis, and timing analysis have not been performed.
